@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A multi-child Vanguard 529 lump-sum allocation and college-cost model."
+    />
+    <title>College Runway — 529 Allocation Model</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="College Runway home">
+        <span class="brand-mark" aria-hidden="true">CR</span>
+        <span>College Runway</span>
+      </a>
+      <div class="header-actions">
+        <button class="share-button" id="shareButton" type="button">Export / import</button>
+        <div class="save-status" id="saveStatus" role="status">
+          <span class="save-dot" aria-hidden="true"></span>
+          Saved in this browser
+        </div>
+      </div>
+    </header>
+
+    <dialog class="share-dialog" id="shareDialog" aria-labelledby="shareTitle">
+      <div class="share-dialog-head">
+        <div>
+          <div class="step-label">Portable snapshot</div>
+          <h2 id="shareTitle">Export or import</h2>
+        </div>
+        <button class="dialog-close" id="shareClose" type="button" aria-label="Close export and import dialog">×</button>
+      </div>
+      <p class="share-intro">The code contains the complete model state. It never leaves your browser unless you copy and share it.</p>
+      <div class="share-grid">
+        <section>
+          <h3>Export</h3>
+          <p>Create a Base64 snapshot of every current input.</p>
+          <label class="sr-only" for="exportCode">Exported model code</label>
+          <textarea id="exportCode" rows="8" readonly spellcheck="false"></textarea>
+          <button class="dialog-action accent" id="copyExport" type="button">Copy export code</button>
+        </section>
+        <section>
+          <h3>Import</h3>
+          <p>Paste a snapshot to replace the model currently saved in this browser.</p>
+          <label class="sr-only" for="importCode">Model code to import</label>
+          <textarea id="importCode" rows="8" spellcheck="false" placeholder="Paste a College Runway code…"></textarea>
+          <button class="dialog-action" id="importButton" type="button">Import and replace</button>
+        </section>
+      </div>
+      <p class="share-message" id="shareMessage" role="status"></p>
+      <p class="share-warning"><strong>Base64 is not encryption.</strong> Anyone with this code can read the names, birthdays, balances, and assumptions it contains.</p>
+    </dialog>
+
+    <main id="top">
+      <section class="hero wrap">
+        <div class="eyebrow">Your 529s · one decision</div>
+        <h1>Give every college plan<br />a clear runway.</h1>
+        <p class="hero-copy">
+          Allocate one lump sum, follow Vanguard’s changing target-enrollment mix,
+          and compare the result with four years at a public university.
+        </p>
+      </section>
+
+      <section class="wrap control-deck" aria-labelledby="allocation-heading">
+        <div class="control-main">
+          <div class="section-heading">
+            <div>
+              <div class="step-label">01 · Allocate</div>
+              <h2 id="allocation-heading">The lump sum</h2>
+            </div>
+            <button class="text-button" id="resetButton" type="button">Reset model</button>
+          </div>
+
+          <div class="money-control">
+            <label for="lumpSum">Amount to allocate now</label>
+            <div class="money-input-wrap">
+              <span>$</span>
+              <input id="lumpSumNumber" type="number" min="0" max="10000000" step="1000" />
+            </div>
+            <input
+              class="range range-large"
+              id="lumpSum"
+              type="range"
+              min="0"
+              max="1000000"
+              step="5000"
+              aria-label="Total lump sum"
+            />
+            <div class="range-ends"><span>$0</span><span>$1M</span></div>
+          </div>
+
+          <div class="allocation-actions">
+            <p>Drag any child’s share below. The other shares rebalance automatically.</p>
+            <div>
+              <button class="pill-button" id="equalButton" type="button">Split equally</button>
+              <button class="pill-button accent" id="needButton" type="button">Allocate by need</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="assumption-panel" aria-labelledby="cost-heading">
+          <div class="step-label light">02 · Set the target</div>
+          <h2 id="cost-heading">College cost</h2>
+
+          <div class="segmented dark" role="group" aria-label="College type">
+            <button type="button" data-cost-type="in">Public in-state</button>
+            <button type="button" data-cost-type="out">Public out-of-state</button>
+          </div>
+
+          <label class="slider-label" for="collegeCost">
+            <span>Annual cost today</span>
+            <output id="collegeCostOutput"></output>
+          </label>
+          <input class="range range-light" id="collegeCost" type="range" min="10000" max="100000" step="1000" />
+
+          <label class="slider-label" for="inflation">
+            <span>Annual college inflation</span>
+            <output id="inflationOutput"></output>
+          </label>
+          <input class="range range-light" id="inflation" type="range" min="-5" max="10" step="0.25" />
+
+          <p class="fine-print">Cost includes tuition, fees, room, board, books, and other qualified expenses you expect the 529 to cover.</p>
+        </aside>
+      </section>
+
+      <section class="wrap scenario-section" aria-labelledby="scenario-heading">
+        <div class="section-heading scenario-heading">
+          <div>
+            <div class="step-label">03 · Stress test</div>
+            <h2 id="scenario-heading">Choose a return scenario</h2>
+          </div>
+          <button class="text-button" id="assumptionsButton" type="button" aria-expanded="false" aria-controls="returnAssumptions">
+            Edit return assumptions
+          </button>
+        </div>
+
+        <div class="scenario-tabs" role="tablist" aria-label="Return scenario">
+          <button type="button" role="tab" data-scenario="conservative">
+            <span>Conservative</span><strong>Lower-return path</strong>
+          </button>
+          <button type="button" role="tab" data-scenario="base">
+            <span>Base</span><strong>Planning case</strong>
+          </button>
+          <button type="button" role="tab" data-scenario="optimistic">
+            <span>Optimistic</span><strong>Strong markets</strong>
+          </button>
+        </div>
+
+        <div class="return-assumptions" id="returnAssumptions" hidden>
+          <p>Nominal annual assumptions for the selected scenario. The model weights these by Vanguard’s changing allocation each quarter.</p>
+          <div class="return-grid">
+            <label>Stocks <span><input id="stockReturn" type="number" min="-10" max="20" step="0.1" />%</span></label>
+            <label>Bonds <span><input id="bondReturn" type="number" min="-10" max="15" step="0.1" />%</span></label>
+            <label>Short-term reserves <span><input id="cashReturn" type="number" min="-5" max="10" step="0.1" />%</span></label>
+            <label>Portfolio expense ratio <span><input id="expenseRatio" type="number" min="0" max="2" step="0.01" />%</span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="results-band" aria-labelledby="results-heading">
+        <div class="wrap">
+          <div class="results-topline">
+            <div>
+              <div class="step-label light">04 · See the outcome</div>
+              <h2 id="results-heading">Family outlook</h2>
+            </div>
+            <p id="resultContext"></p>
+          </div>
+          <div class="summary-grid" id="summaryGrid"></div>
+        </div>
+      </section>
+
+      <section class="wrap chart-section" aria-labelledby="chart-heading">
+        <div class="section-heading">
+          <div>
+            <div class="step-label">Projected balances</div>
+            <h2 id="chart-heading">529 growth &amp; funding targets</h2>
+          </div>
+          <div class="chart-tools">
+            <button class="chart-label-toggle" id="chartLabelsToggle" type="button" aria-pressed="true">
+              <span>Numbers</span><strong id="chartLabelsState">On</strong>
+            </button>
+            <div class="chart-legend" id="chartLegend"></div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <svg id="growthChart" viewBox="0 0 1000 380" role="img" aria-labelledby="chart-heading chartDescription"></svg>
+          <p class="sr-only" id="chartDescription">Projected 529 balances through enrollment, enrollment-date funding targets, and projected four-year public in-state and out-of-state college costs.</p>
+        </div>
+      </section>
+
+      <section class="wrap child-section" aria-labelledby="children-heading">
+        <div class="section-heading">
+          <div>
+            <div class="step-label">Account detail</div>
+            <h2 id="children-heading">Each child’s runway</h2>
+          </div>
+          <div class="child-heading-actions">
+            <p class="heading-note">Names, dates, balances, and enrollment years are editable.</p>
+            <button class="pill-button accent" id="addChildButton" type="button">+ Add child</button>
+          </div>
+        </div>
+        <div class="child-grid" id="childGrid"></div>
+      </section>
+
+      <section class="wrap method-section" aria-labelledby="method-heading">
+        <div>
+          <div class="step-label">How it works</div>
+          <h2 id="method-heading">A glide path, not one fixed return.</h2>
+        </div>
+        <div class="method-copy">
+          <p>
+            Vanguard’s target-enrollment portfolios automatically reduce stocks and add bonds and short-term reserves as enrollment approaches. This model interpolates Vanguard’s July 2026 published allocations quarterly, applies the selected asset-class returns, and subtracts the portfolio expense ratio.
+          </p>
+          <p>
+            College costs rise from today’s estimate through each of four school years. Withdrawals occur at the start of each school year; money left in the account continues along the same glide path.
+          </p>
+          <p>
+            The family outlook treats every account as a transferable sibling pool. It converts goals and planned contributions to today-equivalent dollars, then checks every projected bill chronologically so later contributions cannot hide an earlier shortfall. Child cards remain account-specific.
+          </p>
+          <div class="source-links">
+            <a href="https://investor.vanguard.com/accounts-plans/529-plans/target-enrollment-portfolios" target="_blank" rel="noreferrer">Vanguard portfolio allocations ↗</a>
+            <a href="https://personal1.vanguard.com/pdf/529progdesc.pdf" target="_blank" rel="noreferrer">Vanguard program description ↗</a>
+          </div>
+          <p class="disclaimer">Planning estimate only—not investment, tax, or legal advice. Returns are assumptions, not forecasts or guarantees.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap"><span>College Runway</span><span id="modelDate">Model date</span></div>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
