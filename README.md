@@ -10,6 +10,8 @@ Run the dependency-free regression suite with:
 node --test tests/app.test.js
 ```
 
+If a pull request changes app behavior or the rendered user experience, include an `HTML preview` link in the PR description using `https://htmlpreview.github.io/?<raw-github-index-url>` so reviewers can open the exact commit without cloning.
+
 The model:
 
 - saves inputs to browser `localStorage`;

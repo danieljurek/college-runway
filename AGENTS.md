@@ -1,8 +1,8 @@
 # Agent Notes
 
-## PR preview link for `index.html`
+## PR preview link for behavior-changing app updates
 
-GitHub Raw may render HTML as plain text. For PR descriptions, include an **htmlpreview** link that wraps the raw file URL.
+If a change will alter the app's behavior or end-user experience, include an **htmlpreview** link for `index.html` in the PR description. GitHub Raw may render HTML as plain text, so wrap the raw URL with htmlpreview.
 
 ### Required format
 
@@ -10,6 +10,14 @@ GitHub Raw may render HTML as plain text. For PR descriptions, include an **html
   - `https://raw.githubusercontent.com/<owner>/<repo>/<commit-sha>/index.html`
 - Preview URL (put this in PR body):
   - `https://htmlpreview.github.io/?<raw-url>`
+
+### When to include it
+
+- UI changes
+- Copy or content changes visible in the app
+- Behavior changes that affect calculations, defaults, inputs, or outputs
+
+If the change does **not** affect app behavior or the rendered experience (for example, agent docs or other internal-only updates), the preview link is optional.
 
 ### Steps for agents
 
