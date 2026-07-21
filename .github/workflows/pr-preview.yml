@@ -14,8 +14,9 @@ jobs:
         with:
           script: |
             const marker = '<!-- pr-preview -->';
-            const url = `https://htmlpreview.github.io/?https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/${context.sha}/index.html`;
-            const body = `${marker}\nPreview: ${url}`;
+            const commitUrl = `https://htmlpreview.github.io/?https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/${context.sha}/index.html`;
+            const liveUrl = `https://${context.repo.owner}.github.io/${context.repo.repo}/`;
+            const body = `${marker}\nCommit preview: ${commitUrl}\nLive site: ${liveUrl}`;
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
