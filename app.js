@@ -3,6 +3,7 @@ const BASE_DATE = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12,
 const STORAGE_KEY = "college-runway-v1";
 const MIN_CHILDREN = 1;
 const MAX_CHILDREN = 10;
+const MAX_LUMP_SUM = 100000;
 const COLORS = ["#76a8e8", "#ffad84", "#e5c45e", "#8fcf9d", "#bb9ee8", "#69bfc2", "#e68aae", "#9caf72", "#dd8f5b", "#7d9fd4"];
 
 const defaultState = {
@@ -82,7 +83,7 @@ function normalizeState(saved) {
   if (!saved || typeof saved !== "object" || Array.isArray(saved)) return base;
   const normalized = {
     ...base,
-    lumpSum: boundedNumber(saved.lumpSum, 0, 10000000, base.lumpSum),
+    lumpSum: boundedNumber(saved.lumpSum, 0, MAX_LUMP_SUM, base.lumpSum),
     costType: ["in", "out"].includes(saved.costType) ? saved.costType : base.costType,
     costs: {
       in: boundedNumber(saved.costs?.in, 10000, 100000, base.costs.in),
@@ -364,7 +365,7 @@ function removeChild(index) {
 }
 
 function renderControls() {
-  document.getElementById("lumpSum").value = Math.min(state.lumpSum, 1000000);
+  document.getElementById("lumpSum").value = Math.min(state.lumpSum, MAX_LUMP_SUM);
   document.getElementById("lumpSumNumber").value = Math.round(state.lumpSum);
   document.querySelectorAll("[data-cost-type]").forEach(button => button.classList.toggle("active", button.dataset.costType === state.costType));
   document.getElementById("collegeCost").value = state.costs[state.costType];
@@ -647,7 +648,7 @@ function bindDynamicEvents() {
 }
 
 document.getElementById("lumpSum").addEventListener("input", event => { state.lumpSum = Number(event.target.value); render(); });
-document.getElementById("lumpSumNumber").addEventListener("change", event => { state.lumpSum = Math.max(0, Number(event.target.value) || 0); render(); });
+document.getElementById("lumpSumNumber").addEventListener("change", event => { state.lumpSum = boundedNumber(event.target.value, 0, MAX_LUMP_SUM, 0); render(); });
 document.querySelectorAll("[data-cost-type]").forEach(button => button.addEventListener("click", () => { state.costType = button.dataset.costType; render(); }));
 document.getElementById("collegeCost").addEventListener("input", event => { state.costs[state.costType] = Number(event.target.value); render(); });
 document.getElementById("inflation").addEventListener("input", event => { state.inflation = Number(event.target.value); render(); });
