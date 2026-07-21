@@ -37,7 +37,7 @@ function urlSafePayload(payload) {
 
 test("snapshot round-trips the complete state as URL-safe Base64", () => {
   const model = createModel();
-  model.run('state.kids[0].name = "Test Child 🚀"; state.lumpSum = 321000; state.inflation = -1.25; state.kids[2].annualContribution = 25000');
+  model.run('state.kids[0].name = "Test Child 🚀"; state.lumpSum = 99000; state.inflation = -1.25; state.kids[2].annualContribution = 25000');
   const before = model.read("state");
   const code = model.run("encodeSnapshot()");
   const after = model.read(`decodeSnapshot(${JSON.stringify(code)})`);
@@ -81,6 +81,16 @@ test("import normalization clamps values and restores a valid allocation", () =>
   assert.equal(normalized.kids[0].annualContribution, 25000);
   assert.equal(normalized.kids[0].existing, 0);
   assert.equal(normalized.kids[0].fundStart, 2036);
+
+  const capped = model.read(`normalizeState(${JSON.stringify({ lumpSum: 999999 })})`);
+  assert.equal(capped.lumpSum, 100000);
+});
+
+test("lump-sum helpers format grouped values and parse comma-separated input", () => {
+  const model = createModel();
+  assert.equal(model.run('formatLumpSumInput(100000)'), '100,000');
+  assert.equal(model.run('parseLumpSumInput("12,345")'), 12345);
+  assert.equal(model.run('parseLumpSumInput("999,999")'), 100000);
 });
 
 test("model defaults to three children with equal allocations", () => {

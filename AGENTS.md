@@ -48,5 +48,10 @@ jobs:
 ## PR descriptions
 
 - Short bullets, information-dense. What changed and why. No filler.
-- For PRs that touch `index.html` or visible app behavior, include a preview link:
-  `https://htmlpreview.github.io/?https://github.com/danieljurek/college-runway/blob/<commit-sha>/index.html`
+- For PRs that touch `index.html` or visible app behavior, include both links:
+  - **Commit preview** (exact SHA, works before merge):
+    `https://htmlpreview.github.io/?https://raw.githubusercontent.com/danieljurek/college-runway/<commit-sha>/index.html`
+  - **Live site** (reflects latest `main` after merge):
+    `https://danieljurek.github.io/college-runway/`
+
+If the change does **not** affect app behavior or the rendered experience (for example, agent docs or workflow-only updates), the preview links are optional.
