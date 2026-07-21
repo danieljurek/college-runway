@@ -47,6 +47,7 @@ const glideAnchors = [
 
 const money = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const compactMoney = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 });
+const wholeNumber = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 const displayDate = new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", year: "numeric" });
 
 function deepClone(value) { return JSON.parse(JSON.stringify(value)); }
@@ -56,6 +57,13 @@ function kidColor(index) { return COLORS[index % COLORS.length]; }
 function boundedNumber(value, min, max, fallback) {
   const number = Number(value);
   return Number.isFinite(number) ? Math.max(min, Math.min(max, number)) : fallback;
+}
+function formatLumpSumInput(value) {
+  return wholeNumber.format(Math.round(boundedNumber(value, 0, MAX_LUMP_SUM, 0)));
+}
+function parseLumpSumInput(value) {
+  const digits = String(value).replace(/[^\d]/g, "");
+  return digits ? boundedNumber(digits, 0, MAX_LUMP_SUM, 0) : 0;
 }
 
 function normalizeAllocations(values, count = defaultState.kids.length) {
@@ -366,7 +374,7 @@ function removeChild(index) {
 
 function renderControls() {
   document.getElementById("lumpSum").value = Math.min(state.lumpSum, MAX_LUMP_SUM);
-  document.getElementById("lumpSumNumber").value = Math.round(state.lumpSum);
+  document.getElementById("lumpSumNumber").value = formatLumpSumInput(state.lumpSum);
   document.querySelectorAll("[data-cost-type]").forEach(button => button.classList.toggle("active", button.dataset.costType === state.costType));
   document.getElementById("collegeCost").value = state.costs[state.costType];
   document.getElementById("collegeCostOutput").textContent = money.format(state.costs[state.costType]);
@@ -648,7 +656,8 @@ function bindDynamicEvents() {
 }
 
 document.getElementById("lumpSum").addEventListener("input", event => { state.lumpSum = Number(event.target.value); render(); });
-document.getElementById("lumpSumNumber").addEventListener("change", event => { state.lumpSum = boundedNumber(event.target.value, 0, MAX_LUMP_SUM, 0); render(); });
+document.getElementById("lumpSumNumber").addEventListener("input", event => { state.lumpSum = parseLumpSumInput(event.target.value); render(); });
+document.getElementById("lumpSumNumber").addEventListener("change", event => { state.lumpSum = parseLumpSumInput(event.target.value); render(); });
 document.querySelectorAll("[data-cost-type]").forEach(button => button.addEventListener("click", () => { state.costType = button.dataset.costType; render(); }));
 document.getElementById("collegeCost").addEventListener("input", event => { state.costs[state.costType] = Number(event.target.value); render(); });
 document.getElementById("inflation").addEventListener("input", event => { state.inflation = Number(event.target.value); render(); });

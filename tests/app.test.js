@@ -86,6 +86,13 @@ test("import normalization clamps values and restores a valid allocation", () =>
   assert.equal(capped.lumpSum, 100000);
 });
 
+test("lump-sum helpers format grouped values and parse comma-separated input", () => {
+  const model = createModel();
+  assert.equal(model.run('formatLumpSumInput(100000)'), '100,000');
+  assert.equal(model.run('parseLumpSumInput("12,345")'), 12345);
+  assert.equal(model.run('parseLumpSumInput("999,999")'), 100000);
+});
+
 test("model defaults to three children with equal allocations", () => {
   const model = createModel();
   assert.equal(model.run("state.kids.length"), 3);

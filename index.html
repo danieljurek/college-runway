@@ -78,7 +78,7 @@
             <label for="lumpSum">Amount to allocate now</label>
             <div class="money-input-wrap">
               <span>$</span>
-              <input id="lumpSumNumber" type="number" min="0" max="100000" step="1000" />
+              <input id="lumpSumNumber" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" />
             </div>
             <input
               class="range range-large"
@@ -86,7 +86,7 @@
               type="range"
               min="0"
               max="100000"
-              step="5000"
+              step="100"
               aria-label="Total lump sum"
             />
             <div class="range-ends"><span>$0</span><span>$100K</span></div>
